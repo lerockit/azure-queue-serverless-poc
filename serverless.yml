@@ -1,0 +1,35 @@
+service: b2b-queue-test
+
+frameworkVersion: '2'
+
+provider:
+  name: azure
+  region: West US 2
+  runtime: nodejs12
+  environment:
+    CONNECTION_STRING: ${env:CONNECTION_STRING}
+
+plugins:
+  - serverless-azure-functions
+  - serverless-dotenv-plugin
+
+package:
+  exclude:
+    - local.settings.json
+    - .vscode/**
+
+functions:
+  triggerMessage:
+    handler: dist/triggers/message.sendMessage
+    events:
+      - http: true
+        methods:
+          - GET
+        authLevel: anonymous
+
+  handleMessage:
+    handler: dist/handlers/message.handleMessage
+    events:
+      - queue: cashback-queue
+        name: item
+        connection: CONNECTION_STRING
